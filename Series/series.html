@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Series Detail</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { -webkit-tap-highlight-color: transparent; tap-highlight-color: transparent; }
+        button, a { outline: none; border: none; }
+        .season-btn { padding: 10px 15px; background: rgba(255,255,255,0.1); color: white; border-radius: 5px; cursor: pointer;
+     margin-bottom: 20px;  
+        }
+
+
+        .season-btn.active { background: red; font-weight: bold; }
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; width: 45px; height: 45px;
+            background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; cursor: pointer; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <video class="bg-video" autoplay muted loop id="bgVideo"></video>
+    <div class="overlay"></div>
+
+    <button id="back-btn" class="back-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
+    <div class="content">
+        <h1 id="title"></h1>
+        <p id="desc"></p>
+
+        <div id="seasonNav" class="season-container"></div>
+
+        <div class="episodes-wrapper">
+            <div id="episodeList" class="episode-list"></div>
+        </div>
+    </div>
+
+    <script src="series.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        document.getElementById('back-btn').onclick = () => {
+            window.history.length > 1 ? window.history.back() : window.location.href = '../index.html';
+        };
+    </script>
+        
+    
+    
+    
+</body>
+</html>
