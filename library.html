@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Rinolski Library</title>
+    <meta name="description" content="Browse the complete, open Rinolski movie library. Instantly search and discover streaming availability for hundreds of titles.">
+    
+    <!-- AI & Search Engine Crawling Permissions -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <style>
+        :root {
+            --bg-color: #0c0c0c;
+            --text-color: #ffffff;
+            --accent-color: #e50914; /* Cinematic Streaming Red */
+            --card-bg: #141414;
+            --muted-text: #999999;
+            --border-color: #2a2a2a;
+            --card-radius: 10px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 20px 20px;
+            text-align: left;
+        }
+
+        header h1 {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #ffffff, #888888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--muted-text);
+            font-size: 16px;
+            margin: 0 auto 30px auto;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 60px 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto 50px auto;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 24px;
+            background-color: #151515;
+            border: 2px solid var(--border-color);
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            border-radius: 30px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 25px rgba(229, 9, 20, 0.2);
+        }
+
+        /* PREMIUM CINEMATIC GRID */
+        #searchResults {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 24px;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 480px) {
+            #searchResults {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 16px;
+            }
+        }
+
+        /* BRAND NEW COMPACT CINEMATIC MOVIE CARD LAYER */
+        .movie-item {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 2 / 3; /* Exact premium poster format */
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform: translateZ(0);
+            transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        box-shadow 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Clean Layout Hover Rules for Computers */
+        @media (hover: hover) {
+            .movie-item:hover {
+                transform: scale(1.04);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--accent-color);
+            }
+        }
+
+        /* CSS Aggressive Filtering fallback guard rails */
+        .movie-item:has(a[href*="series"]),
+        .movie-item:has(a[href*="Series"]),
+        .movie-item:not(:has(a[href*="movies"])):not(:has(a[href*="Movies"])) {
+            display: none !important;
+        }
+
+        /* Movie Item Image Management Layer */
+        .movie-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        @media (hover: hover) {
+            .movie-item:hover img {
+                transform: scale(1.03);
+            }
+        }
+
+        /* Image Failure Fallback UI */
+        .movie-item img:before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            z-index: 2;
+        }
+
+        /* Integrated Custom Movie Badges */
+        .movie-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--text-color);
+            padding: 3px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 4px;
+            border-left: 3px solid var(--accent-color);
+            letter-spacing: 0.5px;
+            z-index: 3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Elegant Movie Meta Info Text Wrapper Block */
+        .movie-meta-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 40px 12px 12px 12px;
+            box-sizing: border-box;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            z-index: 2;
+            pointer-events: none; /* Let clicks pass directly into underlying elements */
+        }
+
+        .movie-card-title {
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-card-subtext {
+            font-size: 12px;
+            color: #aaaaaa;
+            margin: 0;
+        }
+
+        /* Custom Floating Play Action Wrapper */
+        .play-link-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-btn-overlay {
+            width: 45px;
+            height: 45px;
+            background-color: rgba(229, 9, 24, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .play-btn-overlay svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
+            margin-left: 2px;
+        }
+
+        /* Reveal the Play Icon Smoothly on Desktop Hover */
+        @media (hover: hover) {
+            .movie-item:hover .play-btn-overlay {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #initialSections {
+            text-align: center;
+            padding: 60px 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 16px;
+            background-color: #111;
+        }
+
+        .fallback-container {
+            grid-column: 1 / -1; /* Stretch across all grid spaces gracefully */
+            text-align: center;
+            padding: 60px 30px;
+            background: linear-gradient(135deg, #161616 0%, #0d0d0d 100%);
+            border-radius: 16px;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .fallback-container h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .fallback-container p {
+            color: var(--muted-text);
+            font-size: 15px;
+            max-width: 500px;
+            margin: 0 auto 25px auto;
+            line-height: 1.6;
+        }
+
+        .fallback-container button {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background 0.2s ease;
+        }
+
+        .fallback-container button:hover {
+            background-color: #e2e2e2;
+        }
+
+        .fallback-container button:disabled {
+            background-color: #222;
+            color: #555;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Rinolski Library</h1>
+    <p>Search our library directly to check availability or discover where your favorite stories live.</p>
+</header>
+
+<div class="container">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search titles..." oninput="interceptSearch()">
+    </div>
+
+    <div id="initialSections">
+        <h2 style="font-size: 20px; font-weight: 700; margin: 0 0 5px 0;">Looking for something to watch?</h2>
+        <p style="margin: 0; color: var(--muted-text); font-size: 14px;">Start typing above to search titles in real-time.</p>
+    </div>
+
+    <!-- MAIN TARGET CONTAINER FOR WEB SCRAPERS AND AI BOT CONTENT ANALYSIS -->
+    <main id="searchResults" style="display: none;"></main>
+</div>
+
+<!-- Hook to external database file -->
+<script src="https://rinolski.online/JS/search.js"></script>
+
+<!-- Injection Script to Map Schema Markup directly into JavaScript Objects for LLM Context Parsing -->
+<script id="ai-movie-ld-json" type="application/ld+json">{}</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCExki28m1NNepVQEIjmcQzR8z8O68LqIc",
+      authDomain: "rinolski-notifications.firebaseapp.com",
+      databaseURL: "https://rinolski-notifications-default-rtdb.firebaseio.com",
+      projectId: "rinolski-notifications",
+      storageBucket: "rinolski-notifications.firebasestorage.app",
+      messagingSenderId: "355554579853",
+      appId: "1:355554579853:web:3caa961653c0cdc0a359c4",
+      measurementId: "G-WZ84970GST"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function stripSeriesData() {
+        if (window.movies && Array.isArray(window.movies)) {
+            window.movies = window.movies.filter(item => {
+                const link = item.link ? item.link.toLowerCase() : "";
+                return link.includes("movies/") && !link.includes("series/");
+            });
+        }
+    }
+    
+    stripSeriesData();
+
+    // CRITICAL FOR AI/SEARCH ENGINES: Generate Schema.org structured data injection so bots can index the database directly
+    function generateStructuredDataSchema() {
+        if (!window.movies || !Array.isArray(window.movies)) return;
+        
+        const baseUrl = window.location.origin;
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": window.movies.map((item, index) => {
+                const rawLink = item.link || "#";
+                const absoluteLink = rawLink.startsWith("http") ? rawLink : `${baseUrl}/${rawLink}`;
+                return {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "item": {
+                        "@type": "Movie",
+                        "name": item.title || "Untitled Movie",
+                        "image": item.image ? (item.image.startsWith("http") ? item.image : `${baseUrl}/${item.image}`) : "",
+                        "url": absoluteLink,
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0.00",
+                            "priceCurrency": "USD",
+                            "availability": "https://schema.org/InStock"
+                        }
+                    }
+                };
+            })
+        };
+        
+        const schemaScriptTag = document.getElementById("ai-movie-ld-json");
+        if (schemaScriptTag) {
+            schemaScriptTag.textContent = JSON.stringify(schema, null, 2);
+        }
+    }
+
+    // Compile dynamic structured schemas instantly as script loads
+    setTimeout(generateStructuredDataSchema, 500);
+
+    async function submitRequest(requestedTitle, buttonElement) {
+        if (!requestedTitle) return;
+        const docId = requestedTitle.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+        if (!docId) return;
+
+        try {
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerText = "✓ Added to Request Queue";
+            }
+            const docRef = doc(db, "title_requests", docId);
+            await setDoc(docRef, {
+                title: requestedTitle.trim(),
+                count: increment(1)
+            }, { merge: true });
+        } catch (error) {
+            console.error("Firestore Error: ", error);
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.innerText = "Request This Title";
+            }
+        }
+    }
+
+    window.interceptSearch = function() {
+        const searchInputEl = document.getElementById("searchInput");
+        if (!searchInputEl) return;
+
+        const rawValue = searchInputEl.value;
+        const searchTerm = rawValue.toLowerCase().trim();
+        const initialSections = document.getElementById("initialSections");  
+        const searchResults = document.getElementById("searchResults");  
+
+        searchResults.innerHTML = "";
+        stripSeriesData();
+
+        if (typeof window.searchMovies === "function") {
+            window.searchMovies();
+            
+            const renderedCards = searchResults.querySelectorAll(".movie-item");
+            renderedCards.forEach(card => {
+                const cardImg = card.querySelector("img");
+                if (cardImg) {
+                    cardImg.onerror = function() {
+                        this.alt = "";
+                    };
+                }
+
+                const oldLink = card.querySelector("a");
+                let targetUrl = "#";
+                
+                if (oldLink) {
+                    targetUrl = oldLink.getAttribute("href");
+                }
+
+                // Complete Node Removal for Series Objects
+                if (targetUrl.toLowerCase().includes("series/") || !targetUrl.toLowerCase().includes("movies/")) {
+                    card.remove();
+                    return; 
+                }
+
+                // Extract Clean Info before changing layout nodes
+                let movieName = card.innerText ? card.innerText.trim() : "";
+                // Strip out trailing text if it merged with internal template spans
+                movieName = movieName.split('\n')[0];
+
+                // RE-ASSEMBLE CARD DOM TO PREMIUM INTERACTIVE LOOK
+                card.innerHTML = ""; // Clear out raw template layouts cleanly
+
+                // 1. Quality Badge Layer
+                const qualityBadge = document.createElement("span");
+                qualityBadge.className = "";
+                qualityBadge.innerText = "";
+                card.appendChild(qualityBadge);
+
+                // 2. Poster Node
+                if (cardImg) {
+                    card.appendChild(cardImg);
+                }
+
+                // 3. Movie Metadata Typography Overlays
+                const metaOverlay = document.createElement("div");
+                metaOverlay.className = "movie-meta-overlay";
+                metaOverlay.innerHTML = `
+                    <h3 class="movie-card-title">${movieName}</h3>
+                    <p class="movie-card-subtext"></p>
+                `;
+                card.appendChild(metaOverlay);
+
+                // 4. Hitbox Anchor with Floating Play Overlay Circle
+                const playLinkWrapper = document.createElement("a");
+                playLinkWrapper.className = "play-link-wrapper";
+                playLinkWrapper.setAttribute("href", targetUrl);
+                playLinkWrapper.innerHTML = `
+                    <div class="play-btn-overlay">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                `;
+                card.appendChild(playLinkWrapper);
+            });
+        }
+
+        const visibleItems = searchResults.querySelectorAll(".movie-item");
+        
+        if (searchTerm && visibleItems.length === 0) {
+            initialSections.style.display = "none";  
+            searchResults.style.display = "grid";  
+            searchResults.innerHTML = `
+                <div class="fallback-container">
+                    <h3>We couldn't find "${rawValue}"</h3>
+                    <p>We don't currently host this title. Tap below to  request</p>
+                    <button id="btnRequest">Request This Title</button>
+                </div>
+            `;
+            
+            const reqBtn = document.getElementById("btnRequest");
+            reqBtn.onclick = function() {
+                submitRequest(rawValue, reqBtn);
+            };
+        } else if (searchTerm) {
+            initialSections.style.display = "none";  
+            searchResults.style.display = "grid";  
+        } else {
+            initialSections.style.display = "block";  
+            searchResults.style.display = "none";  
+        }
+    }
+</script>
+</body>
+</html>
+
